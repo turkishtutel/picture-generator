@@ -87,6 +87,46 @@
   </style>
 </head>
 <body>
+  <div id="epilepsyWarning" style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.8);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+">
+  <div style="
+    background: #eee;
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 500px;
+    text-align: center;
+    color: red;
+    font-size: 18px;
+    line-height: 1.4;
+    font-weight: bold;
+  ">
+    ⚠️ <span style="color: red; text-decoration: underline;">Warning:</span><br/>
+    This visual generator contains rapidly changing, high-contrast colors and may trigger seizures for people with photosensitive epilepsy.<br/><br/>
+    <span style="color: black; font-weight: normal;">Proceed with caution.</span><br/><br/>
+    <button onclick="dismissWarning()" style="
+      background: limegreen;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    ">
+      I understand the risks and want to proceed
+    </button>
+  </div>
+</div>
   <h1>Get a chance to generate a picture</h1>
 
   <div class="canvas-container">
