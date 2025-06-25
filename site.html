@@ -13,19 +13,23 @@
       margin: 0;
       padding: 0;
     }
+
     h1 {
-      margin-top: 20px;
+      margin: 20px 10px 10px;
       font-size: 1.2em;
     }
+
     .canvas-container {
       position: relative;
       display: inline-block;
-      width: 1920px;
-      height: 1080px;
+      width: 95vw;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
       background: white;
       margin: 10px auto;
       border: 1px solid #444;
     }
+
     canvas {
       width: 100%;
       height: 100%;
@@ -33,6 +37,7 @@
       background: #000;
       image-rendering: pixelated;
     }
+
     .corner-buttons {
       position: absolute;
       bottom: 5px;
@@ -40,126 +45,114 @@
       display: flex;
       gap: 5px;
     }
+
     .corner-buttons button {
       background: transparent;
       border: none;
       padding: 0;
       cursor: pointer;
     }
+
     .corner-buttons img {
       width: 20px;
       height: 20px;
     }
+
     .generate-button {
       background-color: limegreen;
       color: black;
       font-weight: bold;
-      padding: 8px 16px;
+      padding: 10px 20px;
       border: none;
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 16px;
       cursor: pointer;
-      margin-top: 10px;
+      margin: 10px auto;
     }
+
     .footer {
       font-size: 12px;
-      margin-top: 15px;
+      margin: 15px 10px;
       color: #aaa;
     }
+
     .footer a {
-      color: #aaa;
+      color: limegreen;
+      font-weight: bold;
       text-decoration: none;
     }
+
     .zoom-box {
       position: absolute;
-      width: 130px;
-      height: 130px;
+      width: 120px;
+      height: 120px;
       border: 2px solid limegreen;
       pointer-events: none;
       display: none;
       overflow: hidden;
     }
+
     #zoomCanvas {
       position: absolute;
       top: 0;
       left: 0;
     }
+
+    @media (max-width: 600px) {
+      .zoom-box {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <div id="epilepsyWarning" style="
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0,0,0,0.8);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-">
-  <div style="
-    background: #eee;
-    padding: 30px;
-    border-radius: 20px;
-    max-width: 500px;
-    text-align: center;
-    color: red;
-    font-size: 18px;
-    line-height: 1.4;
-    font-weight: bold;
-  ">
+
+<div id="epilepsyWarning" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+  <div style="background: #eee; padding: 30px; border-radius: 20px; max-width: 90%; text-align: center; color: red; font-size: 18px; line-height: 1.4; font-weight: bold;">
     ⚠️ <span style="color: red; text-decoration: underline;">Warning:</span><br/>
     This visual generator contains rapidly changing, high-contrast colors and may trigger seizures for people with photosensitive epilepsy.<br/><br/>
     <span style="color: black; font-weight: normal;">Proceed with caution.</span><br/><br/>
-    <button onclick="dismissWarning()" style="
-      background: limegreen;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 16px;
-    ">
+    <button onclick="dismissWarning()" style="background: limegreen; border: none; padding: 10px 20px; border-radius: 8px; color: black; font-weight: bold; cursor: pointer; font-size: 16px;">
       I understand the risks and want to proceed
     </button>
   </div>
 </div>
-  <h1>Get a chance to generate a picture</h1>
 
-  <div class="canvas-container">
-    <canvas id="canvas" width="1920" height="1080"></canvas>
-    <div class="corner-buttons">
-      <button onclick="downloadCanvas()">
-        <img src="download.png" alt="Download">
-      </button>
-    </div>
-    <div id="zoomBox" class="zoom-box">
-      <canvas id="zoomCanvas" width="100" height="100"></canvas>
-    </div>
+<h1>Get a chance to generate a picture</h1>
+
+<div class="canvas-container">
+  <canvas id="canvas" width="1920" height="1080"></canvas>
+
+  <div class="corner-buttons">
+    <button onclick="downloadCanvas()">
+      <img src="download.png" alt="Download">
+    </button>
   </div>
 
-  <div>
-    <button class="generate-button" onclick="generatePixels()">Generate me a picture!</button>
+  <div id="zoomBox" class="zoom-box">
+    <canvas id="zoomCanvas" width="100" height="100"></canvas>
   </div>
+</div>
 
-  <div class="footer">
-    your chances are to get a real generated picture: <br/>
-    1 / (16,777,216<sup>2,073,600</sup>)<br/>
-    which is infinite, so 1 in infinite chance to generate a real picture
-    <br/><br/>
-    <a href="https://guns.lol/turkishtutel" target="_blank">@turkishtutel</a> &nbsp;&nbsp;&nbsp;
-    <a href="https://chat.openai.com" target="_blank">@ChatGPT</a>
-  </div>
+<button class="generate-button" onclick="generatePixels()">Generate me a picture!</button>
+
+<div class="footer">
+  Your chances to get a real generated picture:<br/>
+  1 / (16,777,216<sup>2,073,600</sup>) — basically infinite.<br/><br/>
+  <a href="https://guns.lol/turkishtutel" target="_blank">@turkishtutel</a> &nbsp;&nbsp;
+  <a href="https://chat.openai.com" target="_blank">@ChatGPT</a><br/><br/>
+  <a href="https://discord.gg/YOUR_INVITE_CODE" target="_blank">Submit your pixel finds</a>
+</div>
 
 <script>
   function dismissWarning() {
-  document.getElementById('epilepsyWarning').style.display = 'none';
-}
+    document.getElementById('epilepsyWarning').style.display = 'none';
+  }
+
   const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  ctx.imageSmoothingEnabled = false;
+
   const zoomBox = document.getElementById("zoomBox");
   const zoomCanvas = document.getElementById("zoomCanvas");
   const zoomCtx = zoomCanvas.getContext("2d");
@@ -175,10 +168,10 @@
     const data = imageData.data;
 
     for (let i = 0; i < data.length; i += 4) {
-      data[i] = Math.floor(Math.random() * 256);
-      data[i + 1] = Math.floor(Math.random() * 256);
-      data[i + 2] = Math.floor(Math.random() * 256);
-      data[i + 3] = 255;
+      data[i] = Math.floor(Math.random() * 256);     // Red
+      data[i + 1] = Math.floor(Math.random() * 256); // Green
+      data[i + 2] = Math.floor(Math.random() * 256); // Blue
+      data[i + 3] = 255;                             // Alpha
     }
 
     ctx.putImageData(imageData, 0, 0);
@@ -187,13 +180,15 @@
   function downloadCanvas() {
     const link = document.createElement('a');
     link.download = 'random_picture.png';
-    link.href = canvas.toDataURL();
+    link.href = canvas.toDataURL("image/png", 1.0);
     link.click();
   }
 
   canvas.addEventListener("mouseenter", () => {
     isInside = true;
-    zoomBox.style.display = "block";
+    if (window.innerWidth > 600) {
+      zoomBox.style.display = "block";
+    }
   });
 
   canvas.addEventListener("mouseleave", () => {
@@ -213,10 +208,19 @@
     zoomLevel = Math.max(10, Math.min(1000, newZoom));
   });
 
+  zoomCanvas.addEventListener("click", (e) => {
+    if (e.shiftKey) {
+      const link = document.createElement("a");
+      link.download = "zoomed_pixel.png";
+      link.href = zoomCanvas.toDataURL("image/png", 1.0);
+      link.click();
+    }
+  });
+
   function drawZoom() {
-    if (isInside) {
-      zoomBox.style.left = `${mouseX - 120}px`;
-      zoomBox.style.top = `${mouseY - 100}px`;
+    if (isInside && window.innerWidth > 600) {
+      zoomBox.style.left = `${mouseX - 60}px`;
+      zoomBox.style.top = `${mouseY - 60}px`;
 
       const zoomSize = Math.max(10, Math.min(1000, zoomLevel));
       const sx = Math.max(0, mouseX - zoomSize / 2);
@@ -229,7 +233,8 @@
     requestAnimationFrame(drawZoom);
   }
 
-  drawZoom(); // Start the loop
+  drawZoom();
 </script>
+
 </body>
 </html>
