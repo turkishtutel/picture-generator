@@ -157,8 +157,8 @@
   const zoomCanvas = document.getElementById("zoomCanvas");
   const zoomCtx = zoomCanvas.getContext("2d");
   zoomCtx.imageSmoothingEnabled = false;
-  let zoomLevel = 10;
 
+  let zoomLevel = 100; // start showing 100x100 pixels in zoom box
   let mouseX = 0;
   let mouseY = 0;
   let isInside = false;
@@ -204,8 +204,14 @@
 
   canvas.addEventListener("wheel", (event) => {
     event.preventDefault();
-    const newZoom = zoomLevel + (event.deltaY > 0 ? 10 : -10);
-    zoomLevel = Math.max(10, Math.min(1000, newZoom));
+    const zoomStep = 10;
+    if (event.deltaY < 0) {
+      // zoom in: decrease zoomLevel (show fewer pixels → bigger zoom)
+      zoomLevel = Math.max(10, zoomLevel - zoomStep);
+    } else {
+      // zoom out: increase zoomLevel (show more pixels → smaller zoom)
+      zoomLevel = Math.min(300, zoomLevel + zoomStep);
+    }
   });
 
   zoomCanvas.addEventListener("click", (e) => {
@@ -222,24 +228,23 @@
       zoomBox.style.left = `${mouseX - 60}px`;
       zoomBox.style.top = `${mouseY - 60}px`;
 
-    
+      const zoomSize = zoomLevel;
+
+      let sx = mouseX - zoomSize / 2;
+      let sy = mouseY - zoomSize / 2;
+
+      // Clamp so source rectangle stays inside canvas
+      if (sx < 0) sx = 0;
+      if (sy < 0) sy = 0;
+      if (sx + zoomSize > canvas.width) sx = canvas.width - zoomSize;
+      if (sy + zoomSize > canvas.height) sy = canvas.height - zoomSize;
+
+      zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+      zoomCtx.drawImage(canvas, sx, sy, zoomSize, zoomSize, 0, 0, zoomCanvas.width, zoomCanvas.height);
     }
 
     requestAnimationFrame(drawZoom);
   }
-const zoomSize = Math.max(10, Math.min(1000, zoomLevel));
-
-let sx = mouseX - zoomSize / 2;
-let sy = mouseY - zoomSize / 2;
-
-// Clamp so it stays inside canvas bounds
-if (sx < 0) sx = 0;
-if (sy < 0) sy = 0;
-if (sx + zoomSize > canvas.width) sx = canvas.width - zoomSize;
-if (sy + zoomSize > canvas.height) sy = canvas.height - zoomSize;
-
-zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
-zoomCtx.drawImage(canvas, sx, sy, zoomSize, zoomSize, 0, 0, 100, 100);
 
   drawZoom();
 </script>
