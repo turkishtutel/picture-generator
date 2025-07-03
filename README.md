@@ -7,10 +7,10 @@ download zoomed picture/pixels
 
 how to use
 
-1.enter the site 
-2.press generate me a picture!
-3.go on the canvas
-4.you can see ur pixels
-5.zoom in with scroll up
-zoom out with scroll down
-6.download zoomed in pixels with A
+  1.enter the site 
+  2.press generate me a picture!
+  3.go on the canvas
+  4.you can see ur pixels
+  5.zoom in with scroll up
+   zoom out with scroll down
+  6.download zoomed in pixels with A
