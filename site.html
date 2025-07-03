@@ -105,6 +105,30 @@
       display: none;
     }
 
+    #epilepsyWarning {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.8);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #epilepsyWarning > div {
+      background: #eee;
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 90%;
+      text-align: center;
+      color: red;
+      font-size: 18px;
+      line-height: 1.4;
+      font-weight: bold;
+    }
+
     @media (max-width: 600px) {
       .zoom-box {
         display: none !important;
@@ -114,12 +138,12 @@
 </head>
 <body>
 
-<div id="epilepsyWarning" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center;">
-  <div style="background: #eee; padding: 30px; border-radius: 20px; max-width: 90%; text-align: center; color: red; font-size: 18px; line-height: 1.4; font-weight: bold;">
+<div id="epilepsyWarning">
+  <div>
     ⚠️ <span style="color: red; text-decoration: underline;">Warning:</span><br/>
     This visual generator contains rapidly changing, high-contrast colors and may trigger seizures for people with photosensitive epilepsy.<br/><br/>
     <span style="color: black; font-weight: normal;">Proceed with caution.</span><br/><br/>
-    <button onclick="dismissWarning()" style="background: limegreen; border: none; padding: 10px 20px; border-radius: 8px; color: black; font-weight: bold; cursor: pointer; font-size: 16px;">
+    <button id="dismissBtn" style="background: limegreen; border: none; padding: 10px 20px; border-radius: 8px; color: black; font-weight: bold; cursor: pointer; font-size: 16px;">
       I understand the risks and want to proceed
     </button>
   </div>
@@ -131,10 +155,10 @@
   <canvas id="canvas" width="1920" height="1080"></canvas>
 
   <div class="corner-buttons">
-    <button onclick="downloadCanvas()">
+    <button id="downloadBtn">
       <img src="download.png" alt="Download">
     </button>
-    <button onclick="downloadZoom()">
+    <button id="downloadZoomBtn">
       <img src="zoom.png" alt="Download Zoom">
     </button>
   </div>
@@ -146,7 +170,7 @@
 
 <div id="loading">🎨 Generating pixels...</div>
 
-<button class="generate-button" onclick="generatePixels()">Generate me a picture!</button>
+<button class="generate-button" id="generateBtn">Generate me a picture!</button>
 
 <div class="footer">
   Your chances to get a real generated picture:<br/>
@@ -157,10 +181,8 @@
 </div>
 
 <script>
-  function dismissWarning() {
-    document.getElementById('epilepsyWarning').style.display = 'none';
-  }
-
+  const epilepsyWarning = document.getElementById('epilepsyWarning');
+  const dismissBtn = document.getElementById('dismissBtn');
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   ctx.imageSmoothingEnabled = false;
@@ -171,12 +193,31 @@
   zoomCtx.imageSmoothingEnabled = false;
   let zoomLevel = 100;
 
+  const loading = document.getElementById('loading');
+  const generateBtn = document.getElementById('generateBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const downloadZoomBtn = document.getElementById('downloadZoomBtn');
+
   let mouseX = 0;
   let mouseY = 0;
   let isInside = false;
 
+  let lastDownloadTime = 0;
+  const downloadCooldown = 2000; // 2 seconds cooldown
+
+  let pixelsGenerated = false;
+
+  function dismissWarning() {
+    epilepsyWarning.style.display = 'none';
+  }
+
+  dismissBtn.addEventListener('click', () => {
+    dismissWarning();
+  });
+
   function generatePixels() {
-    document.getElementById('loading').style.display = 'block';
+    loading.style.display = 'block';
+    pixelsGenerated = false;
 
     setTimeout(() => {
       const imageData = ctx.createImageData(canvas.width, canvas.height);
@@ -190,18 +231,33 @@
       }
 
       ctx.putImageData(imageData, 0, 0);
-      document.getElementById('loading').style.display = 'none';
+      loading.style.display = 'none';
+      pixelsGenerated = true;
     }, 50);
   }
 
-  function downloadCanvas() {
+  function canDownload() {
+    const now = Date.now();
+    if (now - lastDownloadTime < downloadCooldown) return false;
+    if (!pixelsGenerated) return false;
+    if (!isInside) return false;
+    return true;
+  }
+
+  function downloadCanvasImage() {
+    if (!canDownload()) return;
+    lastDownloadTime = Date.now();
+
     const link = document.createElement('a');
     link.download = 'random_picture.png';
     link.href = canvas.toDataURL("image/png", 1.0);
     link.click();
   }
 
-  function downloadZoom() {
+  function downloadZoomImage() {
+    if (!canDownload()) return;
+    lastDownloadTime = Date.now();
+
     const link = document.createElement('a');
     link.download = 'zoom_view.png';
     link.href = zoomCanvas.toDataURL("image/png");
@@ -233,7 +289,17 @@
   });
 
   zoomCanvas.addEventListener("click", (e) => {
-    if (e.shiftKey) downloadZoom();
+    if (e.shiftKey) {
+      downloadZoomImage();
+    }
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    downloadCanvasImage();
+  });
+
+  downloadZoomBtn.addEventListener('click', () => {
+    downloadZoomImage();
   });
 
   window.addEventListener("resize", () => {
@@ -243,8 +309,8 @@
 
   function drawZoom() {
     if (isInside && window.innerWidth > 600) {
-      zoomBox.style.left = ${mouseX - 60}px;
-      zoomBox.style.top = ${mouseY - 60}px;
+      zoomBox.style.left = `${mouseX - 60}px`;
+      zoomBox.style.top = `${mouseY - 60}px`;
 
       const zoomSize = Math.max(10, Math.min(1000, zoomLevel));
       const sx = Math.max(0, mouseX - zoomSize / 2);
@@ -253,11 +319,12 @@
       zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
       zoomCtx.drawImage(canvas, sx, sy, zoomSize, zoomSize, 0, 0, 100, 100);
     }
-
     requestAnimationFrame(drawZoom);
   }
 
   drawZoom();
+
+  generateBtn.addEventListener('click', generatePixels);
 </script>
 
 </body>
